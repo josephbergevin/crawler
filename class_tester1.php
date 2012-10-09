@@ -10,7 +10,7 @@ include("/classes/mycrawler_class.php");
 // of the crawler (see class-reference for more options and details)
 // and start the crawling-process. 
 
-$crawler = new MyCrawler();
+$crawler = new MyCrawler(); 
 
 // URL to crawl
 $crawler->setURL("www.seo.com");
@@ -31,6 +31,8 @@ $crawler->setPageLimit(1);
 
 // Thats enough, now here we go
 $crawler->go();
+
+// note...
 
 
 
