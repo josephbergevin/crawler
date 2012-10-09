@@ -1,1 +1,1 @@
-<? echo "Joe's computer sucks"; ?>
+<? echo "Sublime text just work!!!"; ?>
