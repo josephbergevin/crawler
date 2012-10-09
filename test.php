@@ -1,1 +1,1 @@
-<? echo "Test Matt"; ?>
+<? echo "Joe's computer sucks"; ?>
