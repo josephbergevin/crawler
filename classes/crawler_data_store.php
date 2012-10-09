@@ -564,8 +564,6 @@ class CrawlerDataStore {
 		$imploded_values = "'" .$this->implode_with_escape( "', '", $meta_tags_array ) ."'";
 		$sql = "INSERT INTO cr_page_meta ( `page_id`, `key`, `value` ) VALUES $imploded_values";
 		$this->mysqli->query( $sql );
-		echo "<p>$sql</p>";
-		die();
 	} // end of process_page_meta function
 	
 	/*
