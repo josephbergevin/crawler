@@ -2,9 +2,9 @@
 
 include_once( "crawler_data_store.php" );
 // Inculde the phpcrawl-mainclass
-include("/PHPCrawl_080/libs/PHPCrawler.class.php");
-include("/PHPCrawl_080/libs/PHPCrawlerUtils.class.php");
-include_once('/simplehtmldom_1_5/simple_html_dom.php');
+include("PHPCrawl_080/libs/PHPCrawler.class.php");
+include("PHPCrawl_080/libs/PHPCrawlerUtils.class.php");
+include_once('simplehtmldom_1_5/simple_html_dom.php');
 
 
 class MyCrawler extends PHPCrawler {

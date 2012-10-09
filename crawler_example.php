@@ -4,7 +4,7 @@
 set_time_limit(0);
 
 // Inculde the phpcrawl-mainclass
-include("/classes/my_crawler_extends.php");
+include("classes/my_crawler_extends.php");
 
 
 
@@ -15,7 +15,7 @@ include("/classes/my_crawler_extends.php");
 $crawler = new MyCrawler();
 
 // URL to crawl
-$crawler->setURL("www.mixerdirect.com");
+$crawler->setURL("www.seo.com");
 
 // Only receive content of files with content-type "text/html"
 $crawler->addContentTypeReceiveRule("#text/html#");
