@@ -163,8 +163,9 @@ class CrawlerDataStore {
 													     .$meta_tag['key'] ."', '" 
 													     .$meta_tag['value'] ."' )"; 
 					}
-				}
 
+				}
+				unset($list_of_img_metas);					
 				if ( $list_of_img_meta_inserts ) {
 					$insert_values_imploded = implode( ", ", $list_of_img_meta_inserts );
 					//one sql query to insert all the a_tags in one shot
@@ -249,7 +250,7 @@ class CrawlerDataStore {
 													   .$meta_tag['value'] ."' )"; 
 				}
 			}
-
+			unset($list_of_a_tag_metas);
 			if ( $list_of_a_tag_meta_inserts ) {
 				$insert_values_imploded = implode( ", ", $list_of_a_tag_meta_inserts );
 				//one sql query to insert all the a_tags in one shot
@@ -309,7 +310,7 @@ class CrawlerDataStore {
 		
 		// use this array to complete the inserts for the meta tags.
 		$list_of_link_tag_meta_inserts = array( );
-		if ( $list_of_link_tag_metas ) {
+		if ( isset($list_of_link_tag_metas) && count($list_of_link_tag_metas) > 0 ) {
 			foreach ( $list_of_link_tag_metas as $meta_tag ) {
 				$link_tag_id = $this->multidim_array_search( $meta_tag['link_tag'], $link_tag_id_list, 'link_tag_id' );
 				if ( $link_tag_id ) { // && !is_array( $meta_tag )
@@ -601,8 +602,8 @@ class CrawlerDataStore {
 			 declared once to work throughout the entire class as $this->mysqli.
 	*/
 	private function create_sql_var() {
-		$username = "crawler_dbx"; $password = "TUDjX7CH2PKPK9SF"; $db_name = "crawler";
-		$mysqli = new mysqli("localhost", $username, $password, $db_name);
+		$username = "root"; $password = ""; $db_name = "crawler";
+		$mysqli = new mysqli("127.0.0.1", $username, $password, $db_name);
 		return $mysqli;
 	}
 	
