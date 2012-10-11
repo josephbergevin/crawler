@@ -310,7 +310,7 @@ class CrawlerDataStore {
 		
 		// use this array to complete the inserts for the meta tags.
 		$list_of_link_tag_meta_inserts = array( );
-		if ( isset($list_of_link_tag_metas) && count($list_of_link_tag_metas) > 0 ) {
+		if ( isset($list_of_link_tag_metas) ) {
 			foreach ( $list_of_link_tag_metas as $meta_tag ) {
 				$link_tag_id = $this->multidim_array_search( $meta_tag['link_tag'], $link_tag_id_list, 'link_tag_id' );
 				if ( $link_tag_id ) { // && !is_array( $meta_tag )
