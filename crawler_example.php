@@ -15,7 +15,7 @@ include("classes/my_crawler_extends.php");
 $crawler = new MyCrawler();
 
 // URL to crawl
-$crawler->setURL("www.seo.com");
+$crawler->setURL("www.citydeals.com");
 
 // Only receive content of files with content-type "text/html"
 $crawler->addContentTypeReceiveRule("#text/html#");
