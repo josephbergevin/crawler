@@ -108,7 +108,7 @@ class MyCrawler extends PHPCrawler {
 		$link_tag_array = array( );
 
 		// print_r( $links_group );
-
+		if(isset($this->a_tags_from_headings)){
 		// this foreach is used to add the a_tags that were found within heading tags to the list of a_tag links.			
 		foreach ( $this->a_tags_from_headings as $a_tag ) {
 			$dom = str_get_html( $a_tag );
@@ -135,7 +135,7 @@ class MyCrawler extends PHPCrawler {
 			}
 			$a_tag_array[] = $link_array_item;
 		}
-
+	}
 		foreach ( $links_group as $link_obj ) {
 			//process the anchor text link: Add it to a string that will be inserted all at once after this loop	
 			if ( $link_obj['linkcode'] ) {	

@@ -1,14 +1,13 @@
 -- phpMyAdmin SQL Dump
--- version 3.5.2
+-- version 3.2.4
 -- http://www.phpmyadmin.net
 --
--- Host: localhost
--- Generation Time: Oct 03, 2012 at 11:53 PM
--- Server version: 5.5.25a
--- PHP Version: 5.4.4
+-- Host: 127.0.0.1
+-- Generation Time: Oct 18, 2012 at 02:49 PM
+-- Server version: 5.1.44
+-- PHP Version: 5.3.1
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
-SET time_zone = "+00:00";
 
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
@@ -30,7 +29,19 @@ CREATE TABLE IF NOT EXISTS `cr_anchors` (
   `anchor_id` int(11) NOT NULL AUTO_INCREMENT,
   `trimmed_anchor` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`anchor_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5804 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=954 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cr_anchors_2`
+--
+
+CREATE TABLE IF NOT EXISTS `cr_anchors_2` (
+  `anchor_id` int(11) NOT NULL AUTO_INCREMENT,
+  `trimmed_anchor` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`anchor_id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=954 ;
 
 -- --------------------------------------------------------
 
@@ -48,21 +59,21 @@ CREATE TABLE IF NOT EXISTS `cr_a_tags` (
   `img_id` int(11) NOT NULL,
   `page_id` int(11) NOT NULL,
   PRIMARY KEY (`a_tag_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=9803 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=60411 ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cr_a_tag_meta`
+-- Table structure for table `cr_a_tag_metas`
 --
 
-CREATE TABLE IF NOT EXISTS `cr_a_tag_meta` (
+CREATE TABLE IF NOT EXISTS `cr_a_tag_metas` (
   `a_tag_meta_id` int(11) NOT NULL AUTO_INCREMENT,
   `a_tag_id` int(11) NOT NULL,
   `key` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
   `value` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`a_tag_meta_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=49 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=62108 ;
 
 -- --------------------------------------------------------
 
@@ -120,7 +131,7 @@ CREATE TABLE IF NOT EXISTS `cr_headings` (
   `a_tag_id` int(11) NOT NULL,
   `header_text` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`header_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=6201 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=5401 ;
 
 -- --------------------------------------------------------
 
@@ -135,21 +146,21 @@ CREATE TABLE IF NOT EXISTS `cr_imgs` (
   `raw_img` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   `page_id` int(11) NOT NULL,
   PRIMARY KEY (`img_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=545 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=12630 ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cr_img_meta`
+-- Table structure for table `cr_img_metas`
 --
 
-CREATE TABLE IF NOT EXISTS `cr_img_meta` (
+CREATE TABLE IF NOT EXISTS `cr_img_metas` (
   `img_meta_id` int(11) NOT NULL AUTO_INCREMENT,
   `img_id` int(11) NOT NULL,
   `key` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
   `value` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`img_meta_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1069 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=23293 ;
 
 -- --------------------------------------------------------
 
@@ -176,21 +187,21 @@ CREATE TABLE IF NOT EXISTS `cr_link_tags` (
   `page_id` int(11) NOT NULL,
   `referer_page_id` int(11) NOT NULL,
   PRIMARY KEY (`link_tag_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=213 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1421 ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cr_link_tag_meta`
+-- Table structure for table `cr_link_tag_metas`
 --
 
-CREATE TABLE IF NOT EXISTS `cr_link_tag_meta` (
+CREATE TABLE IF NOT EXISTS `cr_link_tag_metas` (
   `link_tag_meta_id` int(11) NOT NULL AUTO_INCREMENT,
   `link_tag_id` int(11) NOT NULL,
   `key` varchar(25) COLLATE utf8_unicode_ci NOT NULL,
   `value` varchar(100) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`link_tag_meta_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=581 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3290 ;
 
 -- --------------------------------------------------------
 
@@ -210,21 +221,35 @@ CREATE TABLE IF NOT EXISTS `cr_pages` (
   `doc_type` varchar(25) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `server_info` varchar(25) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`page_id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=60 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=558 ;
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cr_page_meta`
+-- Table structure for table `cr_page_metas`
 --
 
-CREATE TABLE IF NOT EXISTS `cr_page_meta` (
+CREATE TABLE IF NOT EXISTS `cr_page_metas` (
   `page_meta_id` int(11) NOT NULL AUTO_INCREMENT,
   `page_id` int(11) NOT NULL,
   `key` varchar(25) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   `value` varchar(100) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`page_meta_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `cr_tmp_urls`
+--
+
+CREATE TABLE IF NOT EXISTS `cr_tmp_urls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `url` varchar(255) NOT NULL,
+  `active` tinyint(1) NOT NULL DEFAULT '1',
+  `created_on` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -237,7 +262,7 @@ CREATE TABLE IF NOT EXISTS `cr_urls` (
   `rebuilt_url` varchar(250) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`url_id`),
   UNIQUE KEY `rebuilt_url` (`rebuilt_url`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=6828 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=3037 ;
 
 -- --------------------------------------------------------
 
@@ -355,10 +380,10 @@ CREATE TABLE IF NOT EXISTS `so_siteopts` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `so_sn_code`
+-- Table structure for table `so_sn_codes`
 --
 
-CREATE TABLE IF NOT EXISTS `so_sn_code` (
+CREATE TABLE IF NOT EXISTS `so_sn_codes` (
   `sn_code_id` int(11) NOT NULL AUTO_INCREMENT,
   `code_snippet` text NOT NULL,
   `sn_id` int(11) NOT NULL,
@@ -390,14 +415,3 @@ CREATE TABLE IF NOT EXISTS `so_versions` (
   `version` decimal(10,1) NOT NULL,
   PRIMARY KEY (`version_id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
-
---
--- Dumping data for table `so_versions`
---
-
-INSERT INTO `so_versions` (`version_id`, `version`) VALUES
-(1, 0.1);
-
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
