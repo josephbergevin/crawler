@@ -2,11 +2,10 @@
 
 // It may take a while to crawl a site ...
 set_time_limit(0);
-
+error_reporting(E_ALL);
 // Inculde the phpcrawl-mainclass
+
 include("classes/my_crawler_extends.php");
-
-
 
 // Now, create a instance of your class, define the behaviour
 // of the crawler (see class-reference for more options and details)
@@ -15,7 +14,7 @@ include("classes/my_crawler_extends.php");
 $crawler = new MyCrawler();
 
 // URL to crawl
-$crawler->setURL("www.seo.com");
+$crawler->setURL("www.hapari.com");
 
 // Only receive content of files with content-type "text/html"
 $crawler->addContentTypeReceiveRule("#text/html#");

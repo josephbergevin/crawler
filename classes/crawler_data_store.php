@@ -1,5 +1,6 @@
 <?php
 
+error_reporting(E_ALL);
 //include_once( "config.php" );
 
 /*
@@ -12,7 +13,7 @@ class CrawlerDataStore {
 	//define variables to be stored in
 	private $rebuilt_url, $file_size, $doc_type, $response_code, $load_time, $error_details, $error_code, $orig_url_id,
 			$server, $page_id, $content, $title, $mysqli, $url_id_list, $anchor_id_list, $headings, $a_tags, $link_tags, 
-			$img_tags;
+			$img_tags, $list_of_urls, $list_of_anchors, $iter = 0;
 	
 	/*
 	Function: __construct
@@ -20,8 +21,10 @@ class CrawlerDataStore {
 	Purpose: Process the $DocInfo object and save all the info in the DB.
 	*/
 	public function __construct( $DocInfo, $seocom_info ) {
+		if ( substr( $DocInfo->url, -2, 2 ) == "/(" ) return;
+
 		$this->mysqli = $this->create_sql_var();
-		$this->crawl_id = 4;
+		$this->crawl_id = 5;
 		$this->a_tags = array( );
 		$this->link_tags = array( );
 		$this->img_tags = array( );
@@ -121,13 +124,17 @@ class CrawlerDataStore {
 				foreach ( $img_obj as $key => $value ) {
 					switch ( $key ) {
 						case 'url_rebuild':
-							$url_id = $this->multidim_array_search( $value, $this->url_id_list, 'url_id' );
+							if ( substr( $img_obj['src'], 0, 4 ) == "http" ) {
+								$url_id = $this->multidim_array_search( $img_obj['src'], $this->url_id_list, 'url_id' );
+							} else {
+								$url_id = $this->multidim_array_search( $value, $this->url_id_list, 'url_id' );
+							}
 							break;
 						case 'linkcode':
-							$raw_img = $this->mysqli->real_escape_string( $value );
+							$raw_tag = $this->mysqli->real_escape_string( $value );
 							break;
 						case 'src':
-							$raw_src = $value;
+							$raw_url = $value;
 							break;
 						default:
 							// replace the a_tag_id later when you have inserted the a_tag
@@ -139,18 +146,18 @@ class CrawlerDataStore {
 				} // end of foreach $img_obj loop
 				
 				if ( $url_id ) $list_of_img_inserts[] = 
-					"( '$url_id', '$raw_src', '$raw_img', '$page_id' )";
+					"( '$url_id', '$raw_url', '$raw_tag', '$page_id' )";
 			} // end of foreach img_tags loop
 
 			if ( $list_of_img_inserts ) {
 				$insert_values_imploded = implode( ", ", $list_of_img_inserts );
 				//one sql query to insert all the img_tags texts in one shot
 				$sql = "INSERT INTO cr_imgs 
-							( `url_id`, `raw_src`, `raw_img`, `page_id` )
+							( `url_id`, `raw_url`, `raw_tag`, `page_id` )
 						VALUES $insert_values_imploded";
 				$this->mysqli->query( $sql );
 			}
-			$sql = "SELECT `img_id`, `raw_img` FROM `cr_imgs`";
+			$sql = "SELECT `img_id`, `raw_tag` FROM `cr_imgs`";
 			$img_id_list = $this->sql_result_to_array( $sql );
 
 			// use this array to complete the inserts for the meta tags.
@@ -163,20 +170,19 @@ class CrawlerDataStore {
 													     .$meta_tag['key'] ."', '" 
 													     .$meta_tag['value'] ."' )"; 
 					}
-
 				}
-				unset($list_of_img_metas);					
+
 				if ( $list_of_img_meta_inserts ) {
 					$insert_values_imploded = implode( ", ", $list_of_img_meta_inserts );
 					//one sql query to insert all the a_tags in one shot
-					$sql = "INSERT INTO cr_img_meta 
+					$sql = "INSERT INTO cr_img_metas 
 								( `img_id`, `key`, `value` ) 
 							VALUES $insert_values_imploded";
 					$this->mysqli->query( $sql );
 				}
 
 				// unset( $img_id_list ); don't unset this til after it's been used for the a_tags
-				unset( $list_of_img_meta_inserts ); unset( $insert_values_imploded );
+				unset( $list_of_img_meta_inserts ); unset( $insert_values_imploded ); unset($list_of_img_metas);
 			}
 		}
 
@@ -188,18 +194,23 @@ class CrawlerDataStore {
 				foreach ( $link_obj as $key => $value ) {
 					switch ( $key ) {
 						case 'anchor':
-							$anchor_id = $this->multidim_array_search( $this->clean_anchor( $link_obj['anchor'] ), 
+							$raw_anchor = $value;
+							$anchor_id = $this->multidim_array_search( $this->clean_anchor( $value ), 
 															   $this->anchor_id_list, 'anchor_id' );
 							break;
 						case 'url_rebuild':
-							$url_id = $this->multidim_array_search( $link_obj['url_rebuild'], $this->url_id_list, 'url_id' );
-							$relative = !( $link_obj['href'] == $value );
+							if ( substr( $link_obj['href'], 0, 4 ) == "http" ) {
+								$url_id = $this->multidim_array_search( $link_obj['href'], $this->url_id_list, 'url_id' );
+							} else {
+								$url_id = $this->multidim_array_search( $value, $this->url_id_list, 'url_id' );
+							}
 							break;
 						case 'linkcode':
-							$raw_a_tag = $this->mysqli->real_escape_string( $value );
+							$raw_tag = $this->mysqli->real_escape_string( $value );
 							break;
 						case 'href':
-							$raw_href = $this->mysqli->real_escape_string( $value );
+							$raw_url = $this->mysqli->real_escape_string( $value );
+							$relative = !( substr( $value, 0, 4 ) == "http" );
 							break;
 						default:
 							if ( is_array( $value ) ) {
@@ -214,29 +225,27 @@ class CrawlerDataStore {
 															'key' 	=> $key, 
 															'value' => $value );
 							}
-
-
 							break;
 					}
 					
 					$page_id = $this->orig_url_id;
 				}
 				if ( $url_id ) $list_of_a_inserts[] = 
-						"( '$url_id', '$raw_href', '$relative', '$anchor_id', '$raw_a_tag', '$img_id', '$page_id' )";
+						"( '$raw_tag', '$url_id', '$raw_url', '$relative', '$anchor_id', '$raw_anchor', '$img_id', '$page_id' )";
 			}
 
 			if ( $list_of_a_inserts ) {
 				$insert_values_imploded = implode( ", ", $list_of_a_inserts );
 				//one sql query to insert all the a_tags in one shot
 				$sql = "INSERT INTO cr_a_tags 
-							( `url_id`, `raw_href`, `relative`, `anchor_id`, `raw_anchor`, `img_id`, `page_id` ) 
+							( `raw_tag`, `url_id`, `raw_url`, `relative`, `anchor_id`, `raw_anchor`, `img_id`, `page_id` ) 
 						VALUES $insert_values_imploded";
 				$this->mysqli->query( $sql );
 			}
 		}
 
 		// download the list of a_tags and their id's to an array
-		$sql = "SELECT `a_tag_id`, `raw_anchor` FROM `cr_a_tags`";
+		$sql = "SELECT `a_tag_id`, `raw_tag` FROM `cr_a_tags`";
 		$a_tag_id_list = $this->sql_result_to_array( $sql );
 		
 		// use this array to complete the inserts for the meta tags.
@@ -250,18 +259,18 @@ class CrawlerDataStore {
 													   .$meta_tag['value'] ."' )"; 
 				}
 			}
-			unset($list_of_a_tag_metas);
+
 			if ( $list_of_a_tag_meta_inserts ) {
 				$insert_values_imploded = implode( ", ", $list_of_a_tag_meta_inserts );
 				//one sql query to insert all the a_tags in one shot
-				$sql = "INSERT INTO cr_a_tag_meta 
+				$sql = "INSERT INTO cr_a_tag_metas 
 							( `a_tag_id`, `key`, `value` ) 
 						VALUES $insert_values_imploded";
 				$this->mysqli->query( $sql );
 			}
 
 			// unset( $a_tag_id_list ); keep this for the headings...
-			unset( $list_of_a_tag_meta_inserts ); unset( $insert_values_imploded );
+			unset( $list_of_a_tag_meta_inserts ); unset( $insert_values_imploded ); unset( $list_of_a_tag_metas );
 		}
 
 		// process the link_tags list and create list of inserts for sql string
@@ -272,14 +281,18 @@ class CrawlerDataStore {
 				foreach ( $link_obj as $key => $value ) {
 					switch ( $key ) {
 						case 'url_rebuild':
-							$url_id = $this->multidim_array_search( $value, $this->url_id_list, 'url_id' );
-							$relative = !( $raw_href == $value );
+							if ( substr( $link_obj['href'], 0, 4 ) == "http" ) {
+								$url_id = $this->multidim_array_search( $link_obj['href'], $this->url_id_list, 'url_id' );
+							} else {
+								$url_id = $this->multidim_array_search( $value, $this->url_id_list, 'url_id' );
+							}							
 							break;
 						case 'linkcode':
-							$raw_link_tag = $this->mysqli->real_escape_string( $value );
+							$raw_tag = $this->mysqli->real_escape_string( $value );
 							break;
 						case 'href':
-							$raw_href = $value;
+							$raw_url = $value;
+							$relative = !( substr( $value, 0, 4 ) == "http" );
 							break;
 						default:
 							// replace the link_tag_id later when you have inserted the a_tag
@@ -291,21 +304,21 @@ class CrawlerDataStore {
 				}
 			
 				if ( $url_id ) $list_of_link_inserts[] = 
-					"( '$raw_link_tag', '$page_id', '$url_id' )";	
+					"( '$raw_tag', '$url_id', '$raw_url', '$relative', '$page_id' )";	
 			}
 			
 			if ( $list_of_link_inserts ) {
 				$insert_values_imploded = implode( ", ", $list_of_link_inserts );
 				//one sql query to insert all the link_tags texts in one shot
 				$sql = "INSERT INTO cr_link_tags 
-							( `raw_link_tag`, `page_id`, `referer_page_id` ) 
+							( `raw_tag`, `url_id`, `raw_url`, `relative`, `page_id` ) 
 						VALUES $insert_values_imploded";
 				$this->mysqli->query( $sql );
 			}
 		}
 
 		// download the list of link_tags and their id's to an array
-		$sql = "SELECT `link_tag_id`, `raw_link_tag` FROM `cr_link_tags`";
+		$sql = "SELECT `link_tag_id`, `raw_tag` FROM `cr_link_tags`";
 		$link_tag_id_list = $this->sql_result_to_array( $sql );
 		
 		// use this array to complete the inserts for the meta tags.
@@ -330,6 +343,7 @@ class CrawlerDataStore {
 			}
 		}
 		unset( $link_tag_id_list ); unset( $list_of_link_tag_meta_inserts ); unset( $insert_values_imploded );
+		unset( $list_of_a_tag_metas );
 		
 
 		// process the headings list and create list of inserts for sql string
@@ -340,8 +354,8 @@ class CrawlerDataStore {
 			foreach ( $this->headings as $h_obj ) {
 				$level = NULL;
 				$instance = NULL;
-				$raw_header = NULL;
-				$header_text = NULL;
+				$raw_heading = NULL;
+				$heading_text = NULL;
 				$a_tag_id = NULL;
 				foreach ( $h_obj as $key => $value ) {
 					switch ( $key ) {
@@ -351,11 +365,11 @@ class CrawlerDataStore {
 						case 'instance':
 							$instance = $value;
 							break;
-						case 'raw_header':
-							$raw_header = $this->mysqli->real_escape_string( $value );
+						case 'raw_heading':
+							$raw_heading = $this->mysqli->real_escape_string( $value );
 							break;
-						case 'header_text':
-							$header_text = $this->clean_anchor( $value );
+						case 'heading_text':
+							$heading_text = $this->clean_anchor( $value );
 							break;
 						case 'a_tag_raw':
 							// if ( substr( $value, 0, 3 ) == "<a " ) {
@@ -366,7 +380,7 @@ class CrawlerDataStore {
 							break;
 					}
 					$list_of_heading_inserts[] = 
-						"( '$level', '$instance', '$page_id', '$raw_header', '$a_tag_id', '$header_text' )";
+						"( '$level', '$instance', '$page_id', '$raw_heading', '$a_tag_id', '$heading_text' )";
 				}
 			}
 			// print_r( $list_of_heading_inserts );
@@ -374,10 +388,11 @@ class CrawlerDataStore {
 				$insert_values_imploded = implode( ", ", $list_of_heading_inserts );
 				//one sql query to insert all the headings in one shot
 				$sql = "INSERT INTO cr_headings
-							( `level`, `instance`, `page_id`, `raw_header`, `a_tag_id`, `header_text` ) 
+							( `level`, `instance`, `page_id`, `raw_heading`, `a_tag_id`, `heading_text` ) 
 						VALUES $insert_values_imploded";
 				$this->mysqli->query( $sql );
 			}
+			unset($list_of_heading_inserts);
 		}
 	} // end of process_links function
 
@@ -399,46 +414,65 @@ class CrawlerDataStore {
 	Purpose: Stores URLs and Anchor's in db and then populates the id's for them in $url_id_list and $anchor_id_list
 	*/
 	private function get_ids( ) {
-		$list_of_anchors = array();
-		$list_of_urls = array();
-		$list_of_urls[] = $this->rebuilt_url; //to be able to have the url_id of the page these links are on.
-		// $list_of_urls[] = $this->rebuilt_url; //to be able to have the url_id of the page these links are on.
+		$this->list_of_anchors = array( );
+		$this->list_of_urls = array();
+		$this->list_of_urls[] = $this->rebuilt_url; //to be able to have the url_id of the page these links are on.
+		
+		$this->iter = 0;
+		$this->add_to_url_list( $this->a_tags, 'a' );
+		$this->add_to_url_list( $this->link_tags, 'link' );
+		$this->add_to_url_list( $this->img_tags, 'img' );
 
-		if ( $this->a_tags ) {
-			foreach ( $this->a_tags as $link_obj ) {
-				if ( $link_obj['linkcode'] ) {
-					$list_of_urls[] = $link_obj['url_rebuild'];
-					$list_of_anchors[] = $this->clean_anchor( $link_obj['anchor'] );
-				}
-			}
-		}
-
-		if ( $this->link_tags ) {
-			foreach ( $this->link_tags as $link_obj ) {
-				if ( $link_obj['linkcode'] ) $list_of_urls[] = $link_obj['url_rebuild'];
-			}
-		}
-
-		if ( $this->img_tags ) {
-			foreach ( $this->img_tags as $link_obj ) {
-				if ( $link_obj['linkcode'] ) $list_of_urls[] = $link_obj['url_rebuild'];
-			}
-		}
-
-		$list_of_urls = $this->array_clean_unique( $list_of_urls );
-		if ( $list_of_anchors ) $list_of_anchors = $this->array_clean_unique( $list_of_anchors );
+		$this->list_of_urls = array_unique( $this->list_of_urls );
+		if ( $this->list_of_anchors ) $this->list_of_anchors = array_unique( $this->list_of_anchors );
 		
 		//get url_id and anchor_id for every link in $links_group
-		$this->get_url_ids( $list_of_urls );
-		if ( $list_of_anchors ) $this->get_anchor_ids( $list_of_anchors );
+		$this->get_url_ids( $this->list_of_urls );
+		if ( $this->list_of_anchors ) $this->get_anchor_ids( $this->list_of_anchors );
 		$this->orig_url_id = $this->multidim_array_search( $this->rebuilt_url, $this->url_id_list, 'url_id' );
-		
-		$sql = "INSERT INTO `cr_pages` ( `crawl_id`, `url_id` ) 
-				VALUES ( '" .$this->crawl_id ."', '" .$this->orig_url_id ."' )";
+		if ( !$this->orig_url_id ) echo "<p>$this->rebuilt_url</p>";
+
+		$sql = "INSERT INTO `cr_pages` ( `crawl_id`, `url_id`, `rebuilt_url` ) 
+				VALUES ( '" .$this->crawl_id ."', '" .$this->orig_url_id ."', '" .$this->rebuilt_url."' )";
 		$this->mysqli->query( $sql );
 		$this->page_id = $this->mysqli->insert_id;
 	}
 	
+	/*
+	Function: add_to_url_list (member of PROCESS_LINKS)
+	Expects: 	$array_of_objects: one-dim array of the urls in the $links_group
+				$tags_type: 'link' / 'a' / 'img'
+	Purpose: Adds all urls to $this->list_of_urls and all Anchors to $this->list_of_anchors
+	*/
+	private function add_to_url_list( $array_of_objects, $tags_type ) {
+		if ( $array_of_objects ) {
+			foreach ( $array_of_objects as $link_obj ) {
+				if ( $link_obj['linkcode'] ) {
+					/*if ( $tags_type == 'a' OR $tags_type == 'link' ) $tag_prop = 'href';
+					else $tag_prop = 'src';*/
+
+					$tag_prop = ( $tags_type == 'a' || $tags_type == 'link' )? 'href':'src';
+
+					if ( substr( $link_obj[$tag_prop], 0, 4 ) == "http" ) {
+						$this->list_of_urls[] = $link_obj[$tag_prop];
+					} else {
+						$this->list_of_urls[] = $link_obj['url_rebuild'];
+					}
+					
+					echo '<pre>';
+					if ( substr( $this->list_of_urls[$this->iter], -2, 2 ) == "/(" ) {
+						var_dump($link_obj);
+						echo "<p>$tag_prop: " .$link_obj[$tag_prop] ." | url_rebuild: " .$link_obj['url_rebuild'].
+							 " | copied to list: " .$this->list_of_urls[$this->iter] ."</p>";
+						$this->list_of_urls[$this->iter] = $link_obj[$tag_prop];
+					}
+					if ( $tags_type == 'a' ) $this->list_of_anchors[] = $this->clean_anchor( $link_obj['anchor'] );
+					$this->iter++;
+				}
+			}
+		}
+	}
+
 	/*
 	Function: get_url_ids (sub-member of PROCESS_LINKS)
 	Expects: $list_of_urls: one-dim array of the urls in the $links_group
@@ -460,11 +494,11 @@ class CrawlerDataStore {
 			$urls_not_in_db = array_diff( $list_of_urls, $urls_in_db );
 			
 			//compile insert stmt containing the $urls_not_in_db
-			$urls_imploded_insert = "( '" .$this->implode_with_escape( "' ), ( '", $urls_not_in_db ) ."' )";
 			
+			$urls_imploded_insert = "( '" .implode( "' ), ( '", $urls_not_in_db ) ."' )";
+
 			$sql = "INSERT INTO cr_urls ( `rebuilt_url` ) VALUES $urls_imploded_insert";
 			$this->mysqli->query( $sql );
-			// echo "<p>$sql</p>";
 		}  // end of if statement
 		$sql = "SELECT url_id, rebuilt_url FROM `cr_urls` WHERE $urls_imploded_select";
 		$this->url_id_list = $this->sql_result_to_array( $sql );
@@ -558,12 +592,14 @@ class CrawlerDataStore {
 	*/
 	private function process_page_meta( $meta_tags ) {
 		$meta_tags_array = array();
+		$page_id = $this->page_id;
 		foreach ( $meta_tags as $key => $value ) {
-			$meta_tags_array[] = "( '". $this->page_id ."', '$key', '$value' )";
+			$meta_value = $this->mysqli->real_escape_string( $value );
+			$meta_tags_array[] = "( '$page_id', '$key', '$meta_value' )";
 		}
 		
-		$imploded_values = "'" .$this->implode_with_escape( "', '", $meta_tags_array ) ."'";
-		$sql = "INSERT INTO cr_page_meta ( `page_id`, `key`, `value` ) VALUES $imploded_values";
+		$imploded_values = implode( ", ", $meta_tags_array );
+		$sql = "INSERT INTO cr_page_metas ( `page_id`, `key`, `value` ) VALUES $imploded_values";
 		$this->mysqli->query( $sql );
 	} // end of process_page_meta function
 	
@@ -602,7 +638,7 @@ class CrawlerDataStore {
 			 declared once to work throughout the entire class as $this->mysqli.
 	*/
 	private function create_sql_var() {
-		$username = "root"; $password = ""; $db_name = "crawler";
+		$username = "root"; $password = "SeoPass8@"; $db_name = "crawler";
 		$mysqli = new mysqli("127.0.0.1", $username, $password, $db_name);
 		return $mysqli;
 	}
