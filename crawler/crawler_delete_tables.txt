@@ -1,0 +1,14 @@
+TRUNCATE cr_a_tags;
+TRUNCATE cr_a_tags_metas;
+TRUNCATE cr_anchors;
+TRUNCATE cr_cookies;
+TRUNCATE cr_errors;
+TRUNCATE cr_heading_tags;
+TRUNCATE cr_img_tags;
+TRUNCATE cr_img_tags_metas;
+TRUNCATE cr_link_tags;
+TRUNCATE cr_link_tags_metas;
+TRUNCATE cr_crawled_pages;
+TRUNCATE cr_crawled_pages_metas;
+TRUNCATE cr_urls;
+TRUNCATE cr_prominent_keywords;

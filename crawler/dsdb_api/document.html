@@ -1,0 +1,123 @@
+<html>
+	<head>
+		<title>Deathstar Database API</title>
+	</head>
+	<body>	
+	<h2>Installation</h2>
+	<p>
+	<pre>
+	Set configuration located in 
+
+		dsdb/config.php
+
+	Include the file Deathstar.inc.php in your working document.
+	
+		include 'dsdb/Deathstar.inc.php';
+	
+		
+	Then, instantiate the Deathstar class
+	
+		$deathstar = new Deathstar();
+	</pre>		
+	</p>
+	
+	<h1>Active Data</h1>
+	<h2>Select</h2>
+	<p>
+	<pre>
+	Selecting Campaign/Task without condition
+	
+		$deathstar->selectCampaigns();
+		or
+		$deathstar->selectTasks();
+
+	Selecting Campaign with condition
+		
+		$where = array(
+				'field1' => 'value1',
+				'field2 !' => 'value2' //not equal
+			      );
+		or
+		$where = 'field1 = "field2"';
+		
+		$deathstar->selectCampaigns($where);
+		$deathstar->selectTasks($where);
+
+	Selecting Campaign with options
+					
+		$option = array('ORDER BY' => 'ASC');
+		$deathstar->selectCampaigns($where,$option);
+		$deathstar->selectTasks($where,$option);
+	</pre>		
+	</p>
+
+	<h2>Insert</h2>
+	<p>
+	<pre>
+	Inserting data to Campaign/Task table
+	
+		$data = array(
+			    'field' => '$value'
+			     );
+
+		$deathstar->insertTasks($data);	
+	</pre>		
+	</p>
+
+	<h2>Update</h2>
+	<p>
+	<pre>
+	Updating data from Campaign/Task table
+	
+		$data = array(
+			    'field' => '$value'
+			     );
+		$where = array(
+			    'field1' => 'value2',
+			    'field2 !' => 'value2' //not equal
+			     );
+
+		$deathstar->updateTasks($data, $where);
+	
+	<b>-Field available for insertion/update-</b>
+	<b>Tasks</b>
+	
+		task_name           - name of the task
+		task_description
+		task_estimated_time - estimated time of task to work on
+		fk_category_id	    - categories 
+					    1 - Social Media
+					    2 - SEO
+					    3 - PPC
+					    4 - Web Design
+					    5 - Conversion Optimization
+					    6 - SMB
+					    7 - Excel Projects
+					    8 - Overhead
+               note_require	    - if task required a note
+
+	<b>Campaign</b>
+		for campaign, see Issues/Limitations
+
+	</pre>		
+	</p>
+	<h2>Delete</h2>
+	<p>
+	<pre>
+		see Issues/Limitations
+	</pre>		
+	</p>
+
+	<h2>Issues/Limitations</h2>
+	<p>
+	<pre>
+	1. Campaign table relationship with other table generate a major problem in regards to inserting data.
+		field that will be affected:
+			client_id  - client who own the campaign
+			created_by - user who create the campaign
+	2. Delete function disabled for a meantime due to data security.
+	3. Data received from api request will be limited and summarized.
+	</pre>		
+	</p>
+	</body>
+</html>
