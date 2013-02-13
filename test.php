@@ -1,1 +1,0 @@
-<? echo "Sublime text just work!!!"; ?>
