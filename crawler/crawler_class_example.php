@@ -8,8 +8,8 @@ $file_path = dirname(__FILE__);
 require_once("$file_path/classes/SeoCrawl/SeoCrawl.php");
 
 
-$campaigns_id 	= 1;
-$url 			= "www.seo.com";
+$campaigns_id 	= 2;
+$url 			= "www.hapari.com";
 $limit			= 0;
 
 

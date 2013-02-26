@@ -634,7 +634,7 @@ class CrawlerDataStore {
 			 declared once to work throughout the entire class as $this->mysqli.
 	*/
 	private function create_sql_var() {
-		$username = "seoreader"; $password = "Y8yUzedru2Hucre"; $db_name = "crawler";
+		$username = "seotools"; $password = "brokenlinks#3"; $db_name = "crawler";
 		$mysqli = new mysqli("127.0.0.1", $username, $password, $db_name);
 		return $mysqli;
 	}
